@@ -62,12 +62,7 @@
             font-weight: bold;
             background: #fff;
         }
-        select:focus, input:focus {
-            border-color: var(--blue);
-            outline: none;
-        }
         
-        /* BOTONES INTERACTIVAS GIGANTES */
         .btn-large { 
             width: 100%; 
             padding: 22px; 
@@ -84,38 +79,47 @@
             justify-content: center; 
             text-transform: uppercase;
             box-shadow: 0 4px 6px rgba(0,0,0,0.15);
-            transition: transform 0.1s;
-        }
-        .btn-large:active {
-            transform: scale(0.98);
         }
         .btn-camera { background: var(--blue); }
         .btn-gallery { background: var(--purple); }
         .btn-save { background: var(--primary); }
         .btn-excel { background: var(--orange); }
-        .btn-clear { background: var(--red); font-size: 16px; padding: 12px; margin-top: 0; width: auto; font-weight: bold;}
+        .btn-clear { background: var(--red); font-size: 16px; padding: 12px; width: auto; font-weight: bold;}
         
         .btn-large:disabled {
             background: #bdc3c7 !important;
             box-shadow: none;
-            cursor: not-allowed;
         }
 
-        #canvasContainer { 
-            width: 100%; 
-            margin-top: 20px; 
-            position: relative; 
-            text-align: center; 
-            display: none; 
+        /* PANTALLA VISUAL FIJA PARA LA FOTO */
+        .pantalla-monitoreo {
+            width: 100%;
+            min-height: 250px;
+            background: #2c3e50;
+            border-radius: 14px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid var(--dark);
+            position: relative;
+            overflow: hidden;
+        }
+        .placeholder-texto {
+            color: #afb8c1;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
         }
         canvas { 
-            max-width: 100%; 
-            border-radius: 12px; 
-            border: 3px solid var(--dark); 
+            width: 100%;
+            height: auto;
+            display: none;
             touch-action: none; 
         }
         
-        /* MARCADORES DE MÉTRICAS GIGANTES */
         .metrics { 
             display: grid; 
             grid-template-columns: 1fr; 
@@ -139,50 +143,21 @@
             color: #4a5568; 
             text-transform: uppercase; 
             font-weight: 800; 
-            margin-bottom: 5px;
         }
         .metric-card strong { 
             font-size: 32px; 
-            color: var(--dark); 
         }
         
-        .historial-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-top: 35px; 
-            border-top: 2px solid #eee;
-            padding-top: 20px;
-        }
-        
-        /* TABLA GRANDE PARA MÓVIL */
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-            margin-top: 15px;
-        }
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            font-size: 15px; 
-            font-weight: bold;
-        }
-        th, td { 
-            border: 1px solid #cbd5e0; 
-            padding: 14px; 
-            text-align: center; 
-        }
-        th { 
-            background-color: #ebf8ff; 
-            color: #2b6cb0;
-        }
+        .table-responsive { width: 100%; overflow-x: auto; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; font-size: 15px; font-weight: bold;}
+        th, td { border: 1px solid #cbd5e0; padding: 14px; text-align: center; }
+        th { background-color: #ebf8ff; color: #2b6cb0;}
         .instrucciones { 
             background: #fff9db; 
             border-left: 6px solid #fcc419; 
             padding: 15px; 
             font-size: 16px; 
             margin-top: 15px;
-            margin-bottom: 15px; 
             border-radius: 8px; 
             display: none; 
             font-weight: bold;
@@ -194,7 +169,6 @@
 <div class="container">
     <h2>🪨 CONTROL DE CUBICACIÓN</h2>
 
-    <!-- Configuración del lote -->
     <div class="form-group">
         <label>⚙️ MATERIAL DE LA PIEDRA</label>
         <select id="tipoPiedra" onchange="calcularMetricas()">
@@ -216,28 +190,25 @@
         <input type="number" id="cmPixel" value="0.45" step="0.01" oninput="calcularMetricas()">
     </div>
 
-    <!-- Inputs Ocultos de Sistema -->
     <input type="file" id="inputCamara" accept="image/*" capture="environment" style="display: none;">
     <input type="file" id="inputGaleria" accept="image/*" style="display: none;">
 
-    <!-- UN BOTÓN GIGANTE INDEPENDIENTE PARA CADA OPCIÓN -->
     <button class="btn-large btn-camera" onclick="document.getElementById('inputCamara').click()">📸 1. TOMAR FOTO (CÁMARA)</button>
-    
     <button class="btn-large btn-gallery" onclick="document.getElementById('inputGaleria').click()">🖼️ 2. SUBIR DESDE GALERÍA</button>
     
-    <div id="instrucciones" class="instrucciones">👉 ALINEACIÓN TÁCTIL: Con tu dedo, arrastra las 4 esquinas rojas hasta los bordes reales del bloque.</div>
+    <div id="instrucciones" class="instrucciones">👉 ALINEACIÓN TÁCTIL: Arrastra las 4 esquinas rojas hasta los bordes del bloque de piedra.</div>
 
-    <div id="canvasContainer">
+    <!-- PANTALLA VISUAL COMPLETA Y PERMANENTE -->
+    <div class="pantalla-monitoreo" id="contenedorMonitoreo">
+        <div class="placeholder-texto" id="textoEspera">📺 PANTALLA INACTIVA<br><span style="font-size:14px; font-weight:normal;">Presiona un botón de arriba para ver la imagen del bloque</span></div>
         <canvas id="canvasPreview"></canvas>
     </div>
 
     <button class="btn-large btn-save" id="btnRegistrar" disabled onclick="registrarMedicion()">💾 3. GUARDAR ESTA MEDICIÓN</button>
-    
     <button class="btn-large btn-excel" onclick="descargarExcel()">📥 4. DESCARGAR REPORTE EXCEL</button>
 
-    <!-- TARJETAS DE RESULTADOS GIGANTES -->
     <div class="metrics">
-        <div class="metric-card"><span>📏 ANCHO MÁXIMO</span><strong id="resAncho">- m</strong></div>
+        <div class="metric-card"><span>运输 ANCHO MÁXIMO</span><strong id="resAncho">- m</strong></div>
         <div class="metric-card"><span>📐 ALTO MÁXIMO</span><strong id="resAlto">- m</strong></div>
         <div class="metric-card destacada"><span>📦 VOLUMEN TOTAL</span><strong id="resVolumen">- m³</strong></div>
         <div class="metric-card destacada"><span>⚖️ PESO ESTIMADO</span><strong id="resPeso">- t</strong></div>
@@ -270,24 +241,33 @@
     let imgOriginal = new Image();
     let historialDatos = [];
     
-    let puntos = [
-        { x: 0, y: 0 },
-        { x: 0, y: 0 },
-        { x: 0, y: 0 },
-        { x: 0, y: 0 }
-    ];
+    let puntos = [{x:0,y:0},{x:0,y:0},{x:0,y:0},{x:0,y:0}];
     let puntoSeleccionado = null;
-    const RADIO_PUNTO = 35; // Aumentado el tamaño de toque para dedos grandes en campo
+    const RADIO_PUNTO = 35;
 
     function cargarImagen(files) {
         if (!files || files.length === 0) return;
         let reader = new FileReader();
         reader.onload = function(event) {
             imgOriginal.onload = function() {
+                // Ocultar texto de espera y activar el lienzo gráfico de la foto
+                document.getElementById('textoEspera').style.display = 'none';
+                canvas.style.display = 'block';
+                
                 canvas.width = imgOriginal.width;
                 canvas.height = imgOriginal.height;
                 
-                // Cuadrante central inicial cómodo
                 puntos[0] = { x: canvas.width * 0.2, y: canvas.height * 0.2 };
                 puntos[1] = { x: canvas.width * 0.8, y: canvas.height * 0.2 };
                 puntos[2] = { x: canvas.width * 0.8, y: canvas.height * 0.8 };
+                puntos[3] = { x: canvas.width * 0.2, y: canvas.height * 0.8 };
+
+                document.getElementById('instrucciones').style.display = 'block';
+                document.getElementById('btnRegistrar').disabled = false;
+                
+                dibujarTodo();
+                calcularMetricas();
+            }
+            imgOriginal.src = event.target.result;
+        }
+        reader.readAsDataURL(files[0]);
