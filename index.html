@@ -5,212 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Cubicación de Piedra Industrial</title>
     <script src="https://cloudflare.com"></script>
-    <style>
-        :root { 
-            --primary: #2ecc71; 
-            --dark: #1a252f; 
-            --bg: #f8f9fa; 
-            --blue: #2980b9;
-            --purple: #8e44ad;
-            --orange: #d35400;
-            --red: #c0392b;
-        }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: var(--bg); 
-            margin: 0; 
-            padding: 10px; 
-            color: var(--dark); 
-            touch-action: manipulation; 
-        }
-        .container { 
-            max-width: 100%; 
-            margin: 0 auto; 
-            background: white; padding: 20px; border-radius: 16px; 
-            box-shadow: 0 8px 16px rgba(0,0,0,0.06); box-sizing: border-box;
-        }
-        h2 { 
-            text-align: center; margin-top: 0; color: var(--dark); font-size: 26px;
-            text-transform: uppercase; letter-spacing: 1px; border-bottom: 3px solid #eee; padding-bottom: 10px;
-        }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 16px; color: #555; }
-        select, input { 
-            width: 100%; padding: 16px; border: 2px solid #bdc3c7; border-radius: 10px; 
-            box-sizing: border-box; font-size: 20px; font-weight: bold; background: #fff;
-        }
-        
-        .btn-large { 
-            width: 100%; padding: 22px; border: none; border-radius: 12px; font-size: 22px; 
-            font-weight: 900; cursor: pointer; margin-top: 15px; margin-bottom: 10px; 
-            color: white; display: flex; align-items: center; justify-content: center; 
-            text-transform: uppercase; box-shadow: 0 4px 6px rgba(0,0,0,0.15);
-        }
-        .btn-camera { background: var(--blue); }
-        .btn-gallery { background: var(--purple); }
-        .btn-save { background: var(--primary); }
-        .btn-excel { background: var(--orange); }
-        .btn-clear { background: var(--red); font-size: 16px; padding: 12px; width: auto; font-weight: bold;}
-        
-        .btn-large:disabled { background: #bdc3c7 !important; box-shadow: none; }
-
-        .pantalla-monitoreo {
-            width: 100%; min-height: 250px; background: #2c3e50; border-radius: 14px;
-            margin-top: 20px; margin-bottom: 15px; display: flex; align-items: center;
-            justify-content: center; border: 4px solid var(--dark); position: relative; overflow: hidden;
-        }
-        .placeholder-texto { color: #afb8c1; font-size: 18px; font-weight: bold; text-align: center; padding: 20px; }
-        canvas { width: 100%; height: auto; display: none; touch-action: none; }
-        
-        .metrics { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 25px; }
-        .metric-card { 
-            background: #edf2f7; padding: 20px; border-radius: 12px; text-align: center; border-left: 6px solid var(--blue);
-        }
-        .metric-card.destacada { border-left-color: var(--orange); background: #fff3e0; }
-        .metric-card span { display: block; font-size: 14px; color: #4a5568; text-transform: uppercase; font-weight: 800; }
-        .metric-card strong { font-size: 32px; }
-        
-        .table-responsive { width: 100%; overflow-x: auto; margin-top: 15px; }
-        table { width: 100%; border-collapse: collapse; font-size: 15px; font-weight: bold;}
-        th, td { border: 1px solid #cbd5e0; padding: 14px; text-align: center; }
-        th { background-color: #ebf8ff; color: #2b6cb0;}
-        .instrucciones { 
-            background: #fff9db; border-left: 6px solid #fcc419; padding: 15px; font-size: 16px; 
-            margin-top: 15px; border-radius: 8px; display: none; font-weight: bold;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="container">
+        <h2>🪨 CONTROL DE CUBICACIÓN V3</h2>
 
-<div class="container">
-    <h2>🪨 CONTROL DE CUBICACIÓN</h2>
+        <div class="panel-config">
+            <div class="form-group">
+                <label>⚙️ MATERIAL DE LA PIEDRA</label>
+                <select id="tipoPiedra">
+                    <option value="2.7">Granito (2.7 t/m³)</option>
+                    <option value="2.6">Mármol (2.6 t/m³)</option>
+                    <option value="3.0">Basalto (3.0 t/m³)</option>
+                    <option value="2.5">Caliza (2.5 t/m³)</option>
+                    <option value="2.8">Pizarra (2.8 t/m³)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>📐 FONDO / GROSOR DEL BLOQUE (M)</label>
+                <input type="number" id="fondoMetros" value="1.50" step="0.05">
+            </div>
+            <div class="form-group">
+                <label>📏 CALIBRACIÓN ÓPTICA (CM/PX)</label>
+                <input type="number" id="cmPixel" value="0.45" step="0.01">
+            </div>
+        </div>
 
-    <div class="form-group">
-        <label>⚙️ MATERIAL DE LA PIEDRA</label>
-        <select id="tipoPiedra" onchange="calcularMetricas()">
-            <option value="2.7">Granito (2.7 t/m³)</option>
-            <option value="2.6">Mármol (2.6 t/m³)</option>
-            <option value="3.0">Basalto (3.0 t/m³)</option>
-            <option value="2.5">Caliza (2.5 t/m³)</option>
-            <option value="2.8">Pizarra (2.8 t/m³)</option>
-        </select>
+        <input type="file" id="inputCamara" accept="image/*" capture="environment" style="display: none;">
+        <input type="file" id="inputGaleria" accept="image/*" style="display: none;">
+        
+        <button class="btn-large btn-camera" id="btnCamara">📸 1. TOMAR FOTO (CÁMARA)</button>
+        <button class="btn-large btn-gallery" id="btnGaleria">🖼️ 2. SUBIR DESDE GALERÍA</button>
+        
+        <div id="instrucciones" class="instrucciones">👉 ALINEACIÓN TÁCTIL: Arrastra las 4 esquinas rojas hasta los bordes exactos del bloque de piedra.</div>
+
+        <div class="pantalla-monitoreo" id="contenedorMonitoreo">
+            <div class="placeholder-texto" id="textoEspera">
+                📺 MONITOR INACTIVO<br>
+                <span style="font-size:14px; font-weight:normal;">Selecciona una foto para encender el visor móvil</span>
+            </div>
+            <canvas id="canvasPreview"></canvas>
+        </div>
+
+        <button class="btn-large btn-save" id="btnRegistrar" disabled>💾 3. GUARDAR ESTA MEDICIÓN</button>
+        <button class="btn-large btn-excel" id="btnExcel">📥 4. DESCARGAR REPORTE EXCEL</button>
+
+        <div class="metrics" id="panelMetricas"></div>
+
+        <div class="historial-header">
+            <h2 style="font-size:20px; border:none; margin:0; padding:0;">🗂️ HISTORIAL</h2>
+            <button class="btn-large btn-clear" id="btnLimpiar">🗑️ BORRAR TODO</button>
+        </div>
+        <div class="table-responsive" id="panelTabla"></div>
     </div>
 
-    <div class="form-group">
-        <label>📐 FONDO / GROSOR DEL BLOQUE (METROS)</label>
-        <input type="number" id="fondoMetros" value="1.50" step="0.05" oninput="calcularMetricas()">
-    </div>
-
-    <div class="form-group">
-        <label>📏 CALIBRACIÓN ÓPTICA (CM POR PÍXEL)</label>
-        <input type="number" id="cmPixel" value="0.45" step="0.01" oninput="calcularMetricas()">
-    </div>
-
-    <!-- Inputs ocultos nativos -->
-    <input type="file" id="inputCamara" accept="image/*" capture="environment" style="display: none;">
-    <input type="file" id="inputGaleria" accept="image/*" style="display: none;">
-
-    <button class="btn-large btn-camera" onclick="document.getElementById('inputCamara').click()">📸 1. TOMAR FOTO (CÁMARA)</button>
-    <button class="btn-large btn-gallery" onclick="document.getElementById('inputGaleria').click()">🖼️ 2. SUBIR DESDE GALERÍA</button>
-    
-    <div id="instrucciones" class="instrucciones">👉 ALINEACIÓN TÁCTIL: Arrastra las 4 esquinas rojas hasta los bordes del bloque de piedra.</div>
-
-    <div class="pantalla-monitoreo" id="contenedorMonitoreo">
-        <div class="placeholder-texto" id="textoEspera">📺 PANTALLA INACTIVA<br><span style="font-size:14px; font-weight:normal;">Presiona un botón de arriba para ver la imagen del bloque</span></div>
-        <canvas id="canvasPreview"></canvas>
-    </div>
-
-    <button class="btn-large btn-save" id="btnRegistrar" disabled onclick="registrarMedicion()">💾 3. GUARDAR ESTA MEDICIÓN</button>
-    <button class="btn-large btn-excel" onclick="descargarExcel()">📥 4. DESCARGAR REPORTE EXCEL</button>
-
-    <div class="metrics">
-        <div class="metric-card"><span> Ancho Estimado</span><strong id="resAncho">- m</strong></div>
-        <div class="metric-card"><span>📐 Alto Estimado</span><strong id="resAlto">- m</strong></div>
-        <div class="metric-card destacada"><span>📦 Volumen Total</span><strong id="resVolumen">- m³</strong></div>
-        <div class="metric-card destacada"><span>⚖️ Peso Estimado</span><strong id="resPeso">- t</strong></div>
-    </div>
-
-    <div class="historial-header">
-        <h2 style="font-size:20px; border:none; margin:0; padding:0;">🗂️ HISTORIAL</h2>
-        <button class="btn-large btn-clear" onclick="limpiarHistorial()">🗑️ BORRAR TODO</button>
-    </div>
-
-    <div class="table-responsive">
-        <table id="tablaHistorial">
-            <thead>
-                <tr>
-                    <th>Fecha/Hora</th>
-                    <th>Ancho (m)</th>
-                    <th>Alto (m)</th>
-                    <th>Volumen (m³)</th>
-                    <th>Peso (t)</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-</div>
-
-<script>
-    const canvas = document.getElementById('canvasPreview');
-    const ctx = canvas.getContext('2d');
-    let imgOriginal = new Image();
-    let historialDatos = [];
-    
-    let puntos = [{x:0,y:0},{x:0,y:0},{x:0,y:0},{x:0,y:0}];
-    let puntoSeleccionado = null;
-    const RADIO_PUNTO = 40;
-
-    function cargarImagen(file) {
-        if (!file) return;
-        let reader = new FileReader();
-        reader.onload = function(event) {
-            imgOriginal.onload = function() {
-                document.getElementById('textoEspera').style.display = 'none';
-                canvas.style.display = 'block';
-                
-                canvas.width = imgOriginal.width;
-                canvas.height = imgOriginal.height;
-                
-                // ASIGNACIÓN INDEXADA CORREGIDA 
-                puntos[0] = { x: canvas.width * 0.2, y: canvas.height * 0.2 };
-                puntos[1] = { x: canvas.width * 0.8, y: canvas.height * 0.2 };
-                puntos[2] = { x: canvas.width * 0.8, y: canvas.height * 0.8 };
-                puntos[3] = { x: canvas.width * 0.2, y: canvas.height * 0.8 };
-
-                document.getElementById('instrucciones').style.display = 'block';
-                document.getElementById('btnRegistrar').disabled = false;
-                
-                dibujarTodo();
-                calcularMetricas();
-            }
-            imgOriginal.src = event.target.result;
-        }
-        reader.readAsDataURL(file);
-    }
-
-    // EXTRACCIÓN DEL PRIMER ARCHIVO (.files[0]) CORREGIDO
-    document.getElementById('inputCamara').addEventListener('change', function(e) { cargarImagen(e.target.files[0]); });
-    document.getElementById('inputGaleria').addEventListener('change', function(e) { cargarImagen(e.target.files[0]); });
-
-    function dibujarTodo() {
-        if (!imgOriginal.src || puntos[0].x === 0) return;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(imgOriginal, 0, 0);
-
-        ctx.beginPath();
-        ctx.moveTo(puntos[0].x, puntos[0].y);
-        ctx.lineTo(puntos[1].x, puntos[1].y);
-        ctx.lineTo(puntos[2].x, puntos[2].y);
-        ctx.lineTo(puntos[3].x, puntos[3].y);
-        ctx.closePath();
-        ctx.strokeStyle = "#2ecc71";
-        ctx.lineWidth = Math.max(6, canvas.width * 0.009);
-        ctx.stroke();
-
-        puntos.forEach(p => {
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, Math.max(18, canvas.width * 0.018), 0, 2 * Math.PI);
-            ctx.fillStyle = "rgba(231, 76, 60, 0.9)";
-            ctx.fill();
-            ctx.strokeStyle = "white";
+    <!-- Carga Modular del Ecosistema de Scripts -->
+    <script src="config.js"></script>
+    <script src="ui.js"></script>
+    <script src="math.js"></script>
+    <script src="canvas.js"></script>
+    <script src="excel.js"></script>
+    <script src="loader.js"></script>
+    <script src="touch.js"></script>
+    <script src="mouse.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
