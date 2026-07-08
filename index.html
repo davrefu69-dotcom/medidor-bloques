@@ -2,42 +2,202 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Cubicación de Piedra Industrial</title>
-    <!-- Importamos la librería para generar archivos Excel desde el navegador -->
     <script src="https://cloudflare.com"></script>
     <style>
-        :root { --primary: #2ecc71; --dark: #2c3e50; --bg: #f5f6fa; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: var(--dark); }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h2 { text-align: center; margin-top: 0; color: var(--dark); }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
-        select, input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 10px; color: white; display: flex; align-items: center; justify-content: center; }
-        .btn-camera { background: #3498db; }
-        .btn-calc { background: var(--primary); }
-        .btn-excel { background: #e67e22; }
-        #canvasContainer { width: 100%; margin-top: 15px; position: relative; display: none; text-align: center; }
-        canvas { max-width: 100%; border-radius: 8px; border: 2px solid #ddd; }
-        .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; background: #edf2f7; padding: 15px; border-radius: 8px; }
-        .metric-card { text-align: center; }
-        .metric-card span { display: block; font-size: 12px; color: #718096; text-transform: uppercase; font-weight: bold; }
-        .metric-card strong { font-size: 20px; color: var(--dark); }
-        table { width: 100%; margin-top: 20px; border-collapse: collapse; font-size: 12px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
+        :root { 
+            --primary: #2ecc71; 
+            --dark: #1a252f; 
+            --bg: #f8f9fa; 
+            --blue: #2980b9;
+            --purple: #8e44ad;
+            --orange: #d35400;
+            --red: #c0392b;
+        }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: var(--bg); 
+            margin: 0; 
+            padding: 10px; 
+            color: var(--dark); 
+            touch-action: manipulation; 
+        }
+        .container { 
+            max-width: 100%; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 16px; 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.06); 
+            box-sizing: border-box;
+        }
+        h2 { 
+            text-align: center; 
+            margin-top: 0; 
+            color: var(--dark); 
+            font-size: 28px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 3px solid #eee;
+            padding-bottom: 10px;
+        }
+        .form-group { 
+            margin-bottom: 20px; 
+        }
+        label { 
+            display: block; 
+            font-weight: bold; 
+            margin-bottom: 8px; 
+            font-size: 16px; 
+            color: #555;
+        }
+        select, input { 
+            width: 100%; 
+            padding: 16px; 
+            border: 2px solid #bdc3c7; 
+            border-radius: 10px; 
+            box-sizing: border-box; 
+            font-size: 20px; 
+            font-weight: bold;
+            background: #fff;
+        }
+        select:focus, input:focus {
+            border-color: var(--blue);
+            outline: none;
+        }
+        
+        /* BOTONES INTERACTIVAS GIGANTES */
+        .btn-large { 
+            width: 100%; 
+            padding: 22px; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 22px; 
+            font-weight: 900; 
+            cursor: pointer; 
+            margin-top: 15px;
+            margin-bottom: 10px; 
+            color: white; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            text-transform: uppercase;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            transition: transform 0.1s;
+        }
+        .btn-large:active {
+            transform: scale(0.98);
+        }
+        .btn-camera { background: var(--blue); }
+        .btn-gallery { background: var(--purple); }
+        .btn-save { background: var(--primary); }
+        .btn-excel { background: var(--orange); }
+        .btn-clear { background: var(--red); font-size: 16px; padding: 12px; margin-top: 0; width: auto; font-weight: bold;}
+        
+        .btn-large:disabled {
+            background: #bdc3c7 !important;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        #canvasContainer { 
+            width: 100%; 
+            margin-top: 20px; 
+            position: relative; 
+            text-align: center; 
+            display: none; 
+        }
+        canvas { 
+            max-width: 100%; 
+            border-radius: 12px; 
+            border: 3px solid var(--dark); 
+            touch-action: none; 
+        }
+        
+        /* MARCADORES DE MÉTRICAS GIGANTES */
+        .metrics { 
+            display: grid; 
+            grid-template-columns: 1fr; 
+            gap: 12px; 
+            margin-top: 25px; 
+        }
+        .metric-card { 
+            background: #edf2f7; 
+            padding: 20px; 
+            border-radius: 12px; 
+            text-align: center;
+            border-left: 6px solid var(--blue);
+        }
+        .metric-card.destacada {
+            border-left-color: var(--orange);
+            background: #fff3e0;
+        }
+        .metric-card span { 
+            display: block; 
+            font-size: 14px; 
+            color: #4a5568; 
+            text-transform: uppercase; 
+            font-weight: 800; 
+            margin-bottom: 5px;
+        }
+        .metric-card strong { 
+            font-size: 32px; 
+            color: var(--dark); 
+        }
+        
+        .historial-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-top: 35px; 
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+        }
+        
+        /* TABLA GRANDE PARA MÓVIL */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            font-size: 15px; 
+            font-weight: bold;
+        }
+        th, td { 
+            border: 1px solid #cbd5e0; 
+            padding: 14px; 
+            text-align: center; 
+        }
+        th { 
+            background-color: #ebf8ff; 
+            color: #2b6cb0;
+        }
+        .instrucciones { 
+            background: #fff9db; 
+            border-left: 6px solid #fcc419; 
+            padding: 15px; 
+            font-size: 16px; 
+            margin-top: 15px;
+            margin-bottom: 15px; 
+            border-radius: 8px; 
+            display: none; 
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🪨 Medidor de Bloques</h2>
+    <h2>🪨 CONTROL DE CUBICACIÓN</h2>
 
-    <!-- Controles de configuración -->
+    <!-- Configuración del lote -->
     <div class="form-group">
-        <label>Material de la Piedra</label>
-        <select id="tipoPiedra">
+        <label>⚙️ MATERIAL DE LA PIEDRA</label>
+        <select id="tipoPiedra" onchange="calcularMetricas()">
             <option value="2.7">Granito (2.7 t/m³)</option>
             <option value="2.6">Mármol (2.6 t/m³)</option>
             <option value="3.0">Basalto (3.0 t/m³)</option>
@@ -47,135 +207,87 @@
     </div>
 
     <div class="form-group">
-        <label>Fondo / Grosor del Bloque (metros)</label>
-        <input type="number" id="fondoMetros" value="1.50" step="0.05">
+        <label>📐 FONDO / GROSOR DEL BLOQUE (METROS)</label>
+        <input type="number" id="fondoMetros" value="1.50" step="0.05" oninput="calcularMetricas()">
     </div>
 
     <div class="form-group">
-        <label>Calibración Óptica (cm por Píxel)</label>
-        <input type="number" id="cmPixel" value="0.45" step="0.01">
+        <label>📏 CALIBRACIÓN ÓPTICA (CM POR PÍXEL)</label>
+        <input type="number" id="cmPixel" value="0.45" step="0.01" oninput="calcularMetricas()">
     </div>
 
-    <!-- Botón que activa la cámara trasera o galería del móvil nativamente -->
-    <input type="file" id="fileInput" accept="image/*" capture="environment" style="display: none;">
-    <button class="btn btn-camera" onclick="document.getElementById('fileInput').click()">📸 Tomar Foto / Galería</button>
-    <button class="btn btn-calc" id="btnCalcular" disabled onclick="procesarYMedir()">📐 Calcular Cubicación</button>
-    <button class="btn btn-excel" onclick="descargarExcel()">📥 Descargar Reporte Excel</button>
+    <!-- Inputs Ocultos de Sistema -->
+    <input type="file" id="inputCamara" accept="image/*" capture="environment" style="display: none;">
+    <input type="file" id="inputGaleria" accept="image/*" style="display: none;">
 
-    <!-- Contenedor del procesamiento visual -->
+    <!-- UN BOTÓN GIGANTE INDEPENDIENTE PARA CADA OPCIÓN -->
+    <button class="btn-large btn-camera" onclick="document.getElementById('inputCamara').click()">📸 1. TOMAR FOTO (CÁMARA)</button>
+    
+    <button class="btn-large btn-gallery" onclick="document.getElementById('inputGaleria').click()">🖼️ 2. SUBIR DESDE GALERÍA</button>
+    
+    <div id="instrucciones" class="instrucciones">👉 ALINEACIÓN TÁCTIL: Con tu dedo, arrastra las 4 esquinas rojas hasta los bordes reales del bloque.</div>
+
     <div id="canvasContainer">
         <canvas id="canvasPreview"></canvas>
     </div>
 
-    <!-- Panel de resultados en pantalla -->
+    <button class="btn-large btn-save" id="btnRegistrar" disabled onclick="registrarMedicion()">💾 3. GUARDAR ESTA MEDICIÓN</button>
+    
+    <button class="btn-large btn-excel" onclick="descargarExcel()">📥 4. DESCARGAR REPORTE EXCEL</button>
+
+    <!-- TARJETAS DE RESULTADOS GIGANTES -->
     <div class="metrics">
-        <div class="metric-card"><span>Ancho</span><strong id="resAncho">- m</strong></div>
-        <div class="metric-card"><span>Alto</span><strong id="resAlto">- m</strong></div>
-        <div class="metric-card"><span>Volumen</span><strong id="resVolumen">- m³</strong></div>
-        <div class="metric-card"><span>Peso Est.</span><strong id="resPeso">- t</strong></div>
+        <div class="metric-card"><span>📏 ANCHO MÁXIMO</span><strong id="resAncho">- m</strong></div>
+        <div class="metric-card"><span>📐 ALTO MÁXIMO</span><strong id="resAlto">- m</strong></div>
+        <div class="metric-card destacada"><span>📦 VOLUMEN TOTAL</span><strong id="resVolumen">- m³</strong></div>
+        <div class="metric-card destacada"><span>⚖️ PESO ESTIMADO</span><strong id="resPeso">- t</strong></div>
     </div>
 
-    <!-- Tabla de historial del lote -->
-    <table id="tablaHistorial">
-        <thead>
-            <tr>
-                <th>Fecha/Hora</th>
-                <th>Ancho (m)</th>
-                <th>Alto (m)</th>
-                <th>Volumen (m³)</th>
-                <th>Peso (t)</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    <div class="historial-header">
+        <h2 style="font-size:20px; border:none; margin:0; padding:0;">🗂️ HISTORIAL</h2>
+        <button class="btn-large btn-clear" onclick="limpiarHistorial()">🗑️ BORRAR TODO</button>
+    </div>
+
+    <div class="table-responsive">
+        <table id="tablaHistorial">
+            <thead>
+                <tr>
+                    <th>Fecha/Hora</th>
+                    <th>Ancho (m)</th>
+                    <th>Alto (m)</th>
+                    <th>Volumen (m³)</th>
+                    <th>Peso (t)</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 </div>
 
 <script>
+    const canvas = document.getElementById('canvasPreview');
+    const ctx = canvas.getContext('2d');
     let imgOriginal = new Image();
     let historialDatos = [];
+    
+    let puntos = [
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+        { x: 0, y: 0 }
+    ];
+    let puntoSeleccionado = null;
+    const RADIO_PUNTO = 35; // Aumentado el tamaño de toque para dedos grandes en campo
 
-    // Capturar la imagen cargada
-    document.getElementById('fileInput').addEventListener('change', function(e) {
-        if(e.target.files.length === 0) return;
+    function cargarImagen(files) {
+        if (!files || files.length === 0) return;
         let reader = new FileReader();
         reader.onload = function(event) {
             imgOriginal.onload = function() {
-                let canvas = document.getElementById('canvasPreview');
-                let ctx = canvas.getContext('2d');
                 canvas.width = imgOriginal.width;
                 canvas.height = imgOriginal.height;
-                ctx.drawImage(imgOriginal, 0, 0);
-                document.getElementById('canvasContainer').style.display = 'block';
-                document.getElementById('btnCalcular').disabled = false;
-            }
-            imgOriginal.src = event.target.result;
-        }
-        reader.readAsDataURL(e.target.files[0]);
-    });
-
-    // Procesamiento matemático de las dimensiones del bloque
-    function procesarYMedir() {
-        let canvas = document.getElementById('canvasPreview');
-        let ctx = canvas.getContext('2d');
-        
-        // Simulación de detección perimetral automática (cuadro delimitador del objeto central)
-        // En web pura emulamos el área activa restando márgenes de seguridad para aislar el centro
-        let x = Math.round(canvas.width * 0.15);
-        let y = Math.round(canvas.height * 0.25);
-        let w = Math.round(canvas.width * 0.70);
-        let h = Math.round(canvas.height * 0.50);
-
-        // Volver a dibujar la imagen limpia antes de trazar
-        ctx.drawImage(imgOriginal, 0, 0);
-
-        // Dibujar recuadro industrial verde hiper-visible
-        ctx.strokeStyle = "#2ecc71";
-        ctx.lineWidth = Math.max(4, canvas.width * 0.008);
-        ctx.strokeRect(x, y, w, h);
-
-        // Variables de conversión de la UI
-        let cmPixel = parseFloat(document.getElementById('cmPixel').value);
-        let fondo = parseFloat(document.getElementById('fondoMetros').value);
-        let densidad = parseFloat(document.getElementById('tipoPiedra').value);
-
-        // Fórmulas de cubicación industrial
-        let anchoM = (w * cmPixel) / 100;
-        let altoM = (h * cmPixel) / 100;
-        let volumenM3 = anchoM * altoM * fondo;
-        let pesoT = volumenM3 * densidad;
-
-        // Actualizar tarjetas de interfaz de usuario
-        document.getElementById('resAncho').innerText = anchoM.toFixed(2) + " m";
-        document.getElementById('resAlto').innerText = altoM.toFixed(2) + " m";
-        document.getElementById('resVolumen').innerText = volumenM3.toFixed(2) + " m³";
-        document.getElementById('resPeso').innerText = pesoT.toFixed(2) + " t";
-
-        // Registrar datos en la tabla e historial
-        let ahora = new Date().toLocaleString();
-        historialDatos.push({
-            "Fecha y Hora": ahora,
-            "Ancho (m)": anchoM.toFixed(2),
-            "Alto (m)": altoM.toFixed(2),
-            "Volumen (m3)": volumenM3.toFixed(3),
-            "Peso (t)": pesoT.toFixed(2)
-        });
-
-        let tbody = document.getElementById('tablaHistorial').getElementsByTagName('tbody')[0];
-        let fila = tbody.insertRow(0);
-        fila.innerHTML = `<td>${ahora}</td><td>${anchoM.toFixed(2)}</td><td>${altoM.toFixed(2)}</td><td>${volumenM3.toFixed(3)}</td><td>${pesoT.toFixed(2)}</td>`;
-    }
-
-    // Exportar el lote completo a Excel descargable de forma nativa
-    function descargarExcel() {
-        if(historialDatos.length === 0) {
-            alert("⚠️ Realiza al menos una medición para exportar datos.");
-            return;
-        }
-        let hoja = XLSX.utils.json_to_sheet(historialDatos);
-        let libro = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(libro, hoja, "Mediciones");
-        XLSX.writeFile(libro, "reporte_cubicacion_piedra.xlsx");
-    }
-</script>
-</body>
-</html>
+                
+                // Cuadrante central inicial cómodo
+                puntos[0] = { x: canvas.width * 0.2, y: canvas.height * 0.2 };
+                puntos[1] = { x: canvas.width * 0.8, y: canvas.height * 0.2 };
+                puntos[2] = { x: canvas.width * 0.8, y: canvas.height * 0.8 };
