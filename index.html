@@ -36,7 +36,7 @@
             text-align: center; 
             margin-top: 0; 
             color: var(--dark); 
-            font-size: 28px;
+            font-size: 26px;
             text-transform: uppercase;
             letter-spacing: 1px;
             border-bottom: 3px solid #eee;
@@ -91,7 +91,6 @@
             box-shadow: none;
         }
 
-        /* PANTALLA VISUAL FIJA PARA LA FOTO */
         .pantalla-monitoreo {
             width: 100%;
             min-height: 250px;
@@ -198,7 +197,6 @@
     
     <div id="instrucciones" class="instrucciones">👉 ALINEACIÓN TÁCTIL: Arrastra las 4 esquinas rojas hasta los bordes del bloque de piedra.</div>
 
-    <!-- PANTALLA VISUAL COMPLETA Y PERMANENTE -->
     <div class="pantalla-monitoreo" id="contenedorMonitoreo">
         <div class="placeholder-texto" id="textoEspera">📺 PANTALLA INACTIVA<br><span style="font-size:14px; font-weight:normal;">Presiona un botón de arriba para ver la imagen del bloque</span></div>
         <canvas id="canvasPreview"></canvas>
@@ -208,7 +206,7 @@
     <button class="btn-large btn-excel" onclick="descargarExcel()">📥 4. DESCARGAR REPORTE EXCEL</button>
 
     <div class="metrics">
-        <div class="metric-card"><span>运输 ANCHO MÁXIMO</span><strong id="resAncho">- m</strong></div>
+        <div class="metric-card"><span>📏 ANCHO MÁXIMO</span><strong id="resAncho">- m</strong></div>
         <div class="metric-card"><span>📐 ALTO MÁXIMO</span><strong id="resAlto">- m</strong></div>
         <div class="metric-card destacada"><span>📦 VOLUMEN TOTAL</span><strong id="resVolumen">- m³</strong></div>
         <div class="metric-card destacada"><span>⚖️ PESO ESTIMADO</span><strong id="resPeso">- t</strong></div>
@@ -250,7 +248,6 @@
         let reader = new FileReader();
         reader.onload = function(event) {
             imgOriginal.onload = function() {
-                // Ocultar texto de espera y activar el lienzo gráfico de la foto
                 document.getElementById('textoEspera').style.display = 'none';
                 canvas.style.display = 'block';
                 
@@ -271,3 +268,6 @@
             imgOriginal.src = event.target.result;
         }
         reader.readAsDataURL(files[0]);
+    }
+
+    document.getElementById('inputCamara').addEventListener('change', function(e) { cargarImagen(e.target.files); });
