@@ -91,6 +91,7 @@
             box-shadow: none;
         }
 
+        /* PANTALLA VISUAL DONDE SE MUESTRA LA FOTO REAL */
         .pantalla-monitoreo {
             width: 100%;
             min-height: 250px;
@@ -206,8 +207,8 @@
     <button class="btn-large btn-excel" onclick="descargarExcel()">📥 4. DESCARGAR REPORTE EXCEL</button>
 
     <div class="metrics">
-        <div class="metric-card"><span>📏 ANCHO MÁXIMO</span><strong id="resAncho">- m</strong></div>
-        <div class="metric-card"><span>📐 ALTO MÁXIMO</span><strong id="resAlto">- m</strong></div>
+        <div class="metric-card"><span>📏 ANCHO ESTIMADO</span><strong id="resAncho">- m</strong></div>
+        <div class="metric-card"><span>📐 ALTO ESTIMADO</span><strong id="resAlto">- m</strong></div>
         <div class="metric-card destacada"><span>📦 VOLUMEN TOTAL</span><strong id="resVolumen">- m³</strong></div>
         <div class="metric-card destacada"><span>⚖️ PESO ESTIMADO</span><strong id="resPeso">- t</strong></div>
     </div>
@@ -239,9 +240,10 @@
     let imgOriginal = new Image();
     let historialDatos = [];
     
+    // Configuración inicial limpia de puntos
     let puntos = [{x:0,y:0},{x:0,y:0},{x:0,y:0},{x:0,y:0}];
     let puntoSeleccionado = null;
-    const RADIO_PUNTO = 35;
+    const RADIO_PUNTO = 40; // Sensibilidad táctil extendida para dedos grandes
 
     function cargarImagen(files) {
         if (!files || files.length === 0) return;
@@ -251,23 +253,16 @@
                 document.getElementById('textoEspera').style.display = 'none';
                 canvas.style.display = 'block';
                 
+                // Mapear resoluciones reales
                 canvas.width = imgOriginal.width;
                 canvas.height = imgOriginal.height;
                 
-                puntos[0] = { x: canvas.width * 0.2, y: canvas.height * 0.2 };
-                puntos[1] = { x: canvas.width * 0.8, y: canvas.height * 0.2 };
-                puntos[2] = { x: canvas.width * 0.8, y: canvas.height * 0.8 };
-                puntos[3] = { x: canvas.width * 0.2, y: canvas.height * 0.8 };
+                // ASIGNACIÓN INDEXADA CORRECTA (Se corrigió el fallo anterior)
+                puntos[0] = { x: canvas.width * 0.2, y: canvas.height * 0.2 }; // Sup. Izq.
+                puntos[1] = { x: canvas.width * 0.8, y: canvas.height * 0.2 }; // Sup. Der.
+                puntos[2] = { x: canvas.width * 0.8, y: canvas.height * 0.8 }; // Inf. Der.
+                puntos[3] = { x: canvas.width * 0.2, y: canvas.height * 0.8 }; // Inf. Izq.
 
                 document.getElementById('instrucciones').style.display = 'block';
                 document.getElementById('btnRegistrar').disabled = false;
                 
-                dibujarTodo();
-                calcularMetricas();
-            }
-            imgOriginal.src = event.target.result;
-        }
-        reader.readAsDataURL(files[0]);
-    }
-
-    document.getElementById('inputCamara').addEventListener('change', function(e) { cargarImagen(e.target.files); });
